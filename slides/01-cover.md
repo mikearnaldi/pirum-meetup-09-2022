@@ -1,12 +1,12 @@
 ---
 layout: cover
-title: Tackling the hardest problems in JavaScript
+title: TypeSafe Development with TypeScript
 ---
 
-# Tackling the hardest problems in JavaScript
+# TypeSafe Development with TypeScript
 
-## A gentle introduction to Effect
+## A quick overview
 
 Michael Arnaldi - CEO @ MATECHS
 
-Workers Conf 2022
+Pirum Internal Meetup

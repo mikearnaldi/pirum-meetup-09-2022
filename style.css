@@ -19,7 +19,7 @@ pre.shiki {
   color: black;
 
   /* Give it some space to breathe */
-  padding: 12px;
+  padding: 24px;
 
   /* All code samples get a grey border, twoslash ones get a different color */
   /* border-left: 1px solid #999; */
@@ -180,7 +180,6 @@ pre .error-behind {
 }
 
 pre .error {
-  position: absolute;
   background-color: #fee;
   border-left: 2px solid #bf1818;
   /* Give the space to the error code */
@@ -195,8 +194,8 @@ pre .error .code {
 
 pre .error-behind {
   user-select: none;
-  visibility: transparent;
   color: #fee;
+  display: none;
 }
 
 /* Queries */
