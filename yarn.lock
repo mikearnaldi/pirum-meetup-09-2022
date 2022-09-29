@@ -294,15 +294,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@effect/core@npm:^0.0.4":
-  version: 0.0.4
-  resolution: "@effect/core@npm:0.0.4"
-  peerDependencies:
-    "@tsplus/stdlib": ^0.0.50
-  peerDependenciesMeta:
-    "@tsplus/stdlib":
-      optional: true
-  checksum: 08a6ffd725fd1b674efffb7580ec0b1f8713ef6233b77121b9fa54652228dd343b6e7e62a270f4e0fd43f82a288f5875ad7dbe13b1ec027207cb82135ec5c2e4
+"@effect/core@npm:^0.0.14":
+  version: 0.0.14
+  resolution: "@effect/core@npm:0.0.14"
+  dependencies:
+    "@tsplus/stdlib": ^0.2.6
+  checksum: 896aa6d6bff3626263fc51aa0f6c779ace5195e6ed7b29bf5f6ff5f600f386081e47061994d4c8b14717da3f67664a00cf660d71d884643d6a8a24b0ccd6b821
   languageName: node
   linkType: hard
 
@@ -671,6 +668,13 @@ __metadata:
   version: 0.1.1
   resolution: "@tsplus/stdlib@npm:0.1.1"
   checksum: c7dba1750c2b3621beaad30076e7933daedbc20760436ec224e7f2668c082ac04c4720d6145a7088ab2dbb915cbfb962a3411a46c0d46f1b5c34a65df86c2967
+  languageName: node
+  linkType: hard
+
+"@tsplus/stdlib@npm:^0.2.6":
+  version: 0.2.6
+  resolution: "@tsplus/stdlib@npm:0.2.6"
+  checksum: d93aaccebb30b0d3e82a9b8142632ca7bbb7e5fad28808872ef43f5ca0c54cfc1aadad81044ef4c0831d6c5397601c703a529721991a023da99928fa42a2a2cf
   languageName: node
   linkType: hard
 
@@ -6412,7 +6416,7 @@ __metadata:
   resolution: "workers-conf-2022@workspace:."
   dependencies:
     "@effect-ts/core": ^0.60.2
-    "@effect/core": ^0.0.4
+    "@effect/core": ^0.0.14
     "@phaphoso/eslint-plugin-dprint": ^0.5.2
     "@slidev/cli": ^0.33.0
     "@slidev/theme-default": ^0.21.2
