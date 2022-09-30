@@ -1,5 +1,5 @@
 ---
-title: Tackling the hardest problems in JavaScript
+title: TypeSafe Development with TypeScript
 lineNumbers: true
 canvasWidth: 1024
 src: ./slides/01-cover.md

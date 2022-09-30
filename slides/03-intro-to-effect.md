@@ -273,6 +273,162 @@ Effects can describe interruptible computations with a very rich semantic, in fa
 That's it interruption is propagated through program execution without explicitly passing signals or controllers.
 
 ---
+layout: full
+---
+
+# Controlled concurrency
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/06-lib";
+// @module: esnext
+// @filename: http.ts
+export * from "./examples/effect/04-http";
+// @filename: todos.ts
+import { Effect, pipe } from "./common";
+import * as Http from "./http";
+export interface Todo { id: number }
+export class ParseTodoError { readonly _tag = "ParseTodoError" }
+export declare const getTodo: (id: number) => Effect.Effect<never, Http.FetchError | Http.JsonBodyError | ParseTodoError, Todo>
+// ---cut---
+export const getTodos = (ids: number[]) => Effect.collectAllPar(ids.map(getTodo));
+```
+
+Controlling how many operations are allowed to run in parallel is done by using the `Effect.withParallelism` aspect.
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/06-lib";
+// @module: esnext
+// @filename: http.ts
+export * from "./examples/effect/04-http";
+// @filename: todos.ts
+import { Effect, pipe } from "./common";
+import * as Http from "./http";
+export interface Todo { id: number }
+export class ParseTodoError { readonly _tag = "ParseTodoError" }
+export declare const getTodo: (id: number) => Effect.Effect<never, Http.FetchError | Http.JsonBodyError | ParseTodoError, Todo>
+// ---cut---
+export const getTodos = (ids: number[]) => pipe(
+  Effect.collectAllPar(ids.map(getTodo)),
+  Effect.withParallelism(15)
+);
+```
+
+Or leave it to the caller:
+
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/06-lib";
+// @module: esnext
+// @filename: http.ts
+export * from "./examples/effect/04-http";
+// @filename: todos.ts
+import { Effect, pipe } from "./common";
+import * as Http from "./http";
+export interface Todo { id: number }
+export class ParseTodoError { readonly _tag = "ParseTodoError" }
+export declare const getTodo: (id: number) => Effect.Effect<never, Http.FetchError | Http.JsonBodyError | ParseTodoError, Todo>
+// ---cut---
+export const getTodos = (ids: number[]) => Effect.collectAllPar(ids.map(getTodo));
+
+export const program = pipe(getTodos([0, 1, 2, 3]), Effect.withParallelism(3))
+```
+
+---
+layout: full
+---
+
+# Metrics
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/03-lib";
+// @filename: todos.ts
+export * from "./examples/effect/03-todos";
+// @filename: index.ts
+// ---cut---
+import { Effect, pipe } from "./common";
+import * as Metrics from "@effect/core/io/Metrics"
+import * as Todos from "./todos";
+
+export const GetTodoCount = Metrics.counter("GetTodoCount")
+
+export const getTodo = (id: number) => pipe(
+  Todos.getTodo(id),
+  Effect.tap(() => Metrics.increment(GetTodoCount))
+)
+```
+Defining prometheus-compatible metrics for your program becomes painless, Metrics are native to Effect and we have our own representations for them that is independent of third parties, multiple exporters will be provided as ecosystem packages. As we can see below metrics are also composable!
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/03-lib";
+// @filename: todos.ts
+export * from "./examples/effect/03-todos";
+// @filename: index.ts
+import { Effect, pipe } from "./common";
+import * as Metrics from "@effect/core/io/Metrics"
+import * as Todos from "./todos";
+
+// ---cut---
+export const GetTodoCount = pipe(Metrics.counter("GetTodoCount"), Metrics.fromConst(() => 1))
+
+export const getTodo = (id: number) => GetTodoCount(Todos.getTodo(id))
+```
+
+---
+layout: full
+---
+
+# Tracing
+
+We are currently integrating with OpenTelemetry via the ecosystem package `@effect/otel` but we are working on a native representation of spans and tracing following the same principles applied for `Metrics`
+
+```ts
+import { Effect, pipe } from "./common";
+import * as Todos from "./todos";
+
+export const getTodo = (id: number) => pipe(
+  Todos.getTodo(id),
+  Effect.withSpanAttribute("id", id),
+  Effect.withSpan("GetTodo")
+)
+
+export const getTodos = (ids: number[]) => pipe(
+  Todos.getTodos(ids),
+  Effect.withSpanAttribute("ids", ids),
+  Effect.withSpan("GetTodos")
+)
+```
+
+Note: This isn't yet ready but we are actively working on it! for the time being you'll find `withSpan` in the otel ecosystem package.
+
+---
+layout: center
+---
+
+# Tracing, A real life view
+
+<img src="https://i.imgur.com/lR5lC5C.png" style="width: 600px" />
+
+---
 layout: center
 ---
 
