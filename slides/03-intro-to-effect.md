@@ -686,4 +686,13 @@ Where to go next?
 
 [Slides Code](https://github.com/mikearnaldi/pirum-meetup-09-2022) [Website](https://www.effect.website/) [Discord Community](https://discord.gg/cWtHKdAXwC)
 
+<hr />
+
+
+We offer:
+
+Training, Team Extension, Design & Development, Accessibility Audits, Recruitment.
+
+[contact@matechs.com](contact@matechs.com)
+
 </center>
