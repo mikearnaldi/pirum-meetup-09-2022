@@ -27,8 +27,7 @@ export const jsonBody = (input: Response) =>
 
 export const defaultRetrySchedule = pipe(
   Schedule.exponential(Duration.millis(10), 2.0),
-  Schedule.either(Schedule.spaced(() => Duration.seconds(1))),
+  Schedule.either(Schedule.spaced(Duration.seconds(1))),
   Schedule.compose(Schedule.elapsed),
   Schedule.whileOutput(Duration.lowerThenOrEqual(Duration.seconds(30)))
 );
-

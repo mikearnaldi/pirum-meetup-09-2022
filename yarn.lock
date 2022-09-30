@@ -816,24 +816,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tsplus/stdlib@npm:0.1.1":
-  version: 0.1.1
-  resolution: "@tsplus/stdlib@npm:0.1.1"
-  checksum: c7dba1750c2b3621beaad30076e7933daedbc20760436ec224e7f2668c082ac04c4720d6145a7088ab2dbb915cbfb962a3411a46c0d46f1b5c34a65df86c2967
-  languageName: node
-  linkType: hard
-
-"@tsplus/stdlib@npm:^0.2.6":
+"@tsplus/stdlib@npm:0.2.6, @tsplus/stdlib@npm:^0.2.6":
   version: 0.2.6
   resolution: "@tsplus/stdlib@npm:0.2.6"
   checksum: d93aaccebb30b0d3e82a9b8142632ca7bbb7e5fad28808872ef43f5ca0c54cfc1aadad81044ef4c0831d6c5397601c703a529721991a023da99928fa42a2a2cf
-  languageName: node
-  linkType: hard
-
-"@types/deasync@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@types/deasync@npm:0.1.2"
-  checksum: 28a49e42c0d459afabdab02f0464a0231e24ef79bf800f15f779897d9564fb2b95d887e6f338a9bc5fa67186594dc1977dd5565fea3c7e0c9b282032c7b20c51
   languageName: node
   linkType: hard
 
@@ -2855,7 +2841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deasync@npm:^0.1.21, deasync@npm:^0.1.28":
+"deasync@npm:^0.1.21":
   version: 0.1.28
   resolution: "deasync@npm:0.1.28"
   dependencies:
@@ -7516,12 +7502,10 @@ __metadata:
     "@slidev/cli": ^0.36.5
     "@slidev/theme-default": ^0.21.2
     "@slidev/theme-seriph": ^0.21.3
-    "@tsplus/stdlib": 0.1.1
-    "@types/deasync": ^0.1.2
+    "@tsplus/stdlib": 0.2.6
     "@types/node": ^18.7.23
     "@typescript-eslint/eslint-plugin": ^5.38.1
     "@typescript-eslint/parser": ^5.38.1
-    deasync: ^0.1.28
     dprint: ^0.32.1
     eslint: ^8.24.0
     eslint-import-resolver-typescript: ^3.5.1

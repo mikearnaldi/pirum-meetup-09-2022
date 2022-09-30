@@ -53,12 +53,16 @@ layout: center
 
 <br />
 
+<div style="width: 700px;">
+
 ```ts twoslash
 // @errors: 2469
 const hello = "hello"
 const world = "world"
 const sentence = hello + world + Symbol.for("ok")
 ```
+
+</div>
 
 ---
 layout: center

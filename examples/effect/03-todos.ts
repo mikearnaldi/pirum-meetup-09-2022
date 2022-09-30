@@ -7,10 +7,10 @@ export const getTodo = (id: number) =>
   pipe(
     Http.request(`https://jsonplaceholder.typicode.com/todos/${id}`),
     Effect.flatMap(Http.jsonBody),
-    Effect.retry(() =>
+    Effect.retry(
       pipe(
         Http.defaultRetrySchedule,
-        Schedule.whileInput((error) => error._tag !== "JsonBodyError")
+        Schedule.whileInput((error: Http.FetchError | Http.JsonBodyError) => error._tag !== "JsonBodyError")
       )
     )
   );
