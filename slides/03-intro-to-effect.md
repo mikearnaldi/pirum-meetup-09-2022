@@ -398,7 +398,7 @@ layout: full
 ---
 
 # Tracing
-
+##
 We are currently integrating with OpenTelemetry via the ecosystem package `@effect/otel` but we are working on a native representation of spans and tracing following the same principles applied for `Metrics`
 
 ```ts
@@ -427,6 +427,250 @@ layout: center
 # Tracing, A real life view
 
 <img src="https://i.imgur.com/lR5lC5C.png" style="width: 600px" />
+
+---
+layout: full
+---
+
+# Dependency Injection
+##
+Effect has native support for Context propagation, think of it like the React context on type-safe steroids.
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/03-lib";
+// @filename: todos.ts
+export interface Todo { id: number }
+// ---cut---
+import { Effect, Chunk } from "./common";
+import { Tag } from "@tsplus/stdlib/service/Tag";
+
+export interface TodoRepo {
+  readonly getTodo: (id: number) => Effect.Effect<never, never, Todo>
+  readonly getTodos: (ids: number[]) => Effect.Effect<never, never, Chunk.Chunk<Todo>>
+}
+
+export const TodoRepo = Tag<TodoRepo>()
+
+export const program = Effect.gen(function* ($) {
+  const Todos = yield* $(TodoRepo)
+  const todos = yield* $(Todos.getTodos([1, 2, 3, 4]))
+
+  for (const todo of todos) {
+    yield* $(Effect.log(`todo: ${JSON.stringify(todo)}`))
+  }
+  
+  return Chunk.size(todos)
+})
+```
+
+---
+layout: full
+---
+
+# Dependency Injection
+##
+Running a program requires all dependencies to be provided into the Context, a smart way of constructing dependency trees of potentially interdependent services is by using `Layer`
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/03-lib";
+// @filename: todos-impl.ts
+export * from "./examples/effect/09-todos-orDie";
+// @filename: todos.ts
+import { Effect, Chunk, Exit, pipe } from "./common";
+import { Tag } from "@tsplus/stdlib/service/Tag";
+
+export interface Todo { id: number }
+
+export interface TodoRepo {
+  readonly getTodo: (id: number) => Effect.Effect<never, never, Todo>
+  readonly getTodos: (ids: number[]) => Effect.Effect<never, never, Chunk.Chunk<Todo>>
+}
+
+export const TodoRepo = Tag<TodoRepo>()
+
+export const program = Effect.gen(function* ($) {
+  const Todos = yield* $(TodoRepo)
+
+  const todos = yield* $(Todos.getTodos([1, 2, 3, 4]))
+
+  for (const todo of todos) {
+    yield* $(Effect.log(`todo: ${JSON.stringify(todo)}`))
+  }
+
+  return Chunk.size(todos)
+})
+
+import * as Impl from "./todos-impl";
+
+// ---cut---
+import * as Layer from "@effect/core/io/Layer"
+
+export const LiveTodoRepo = Layer.fromEffect(
+  TodoRepo,
+  Effect.sync(() => ({
+    getTodo: Impl.getTodo,
+    getTodos: Impl.getTodos
+  }))
+)
+
+export const main = pipe(
+  program,
+  Effect.provideSomeLayer(LiveTodoRepo)
+)
+
+Effect.unsafeRunAsyncWith(main, (exit) => {
+  if (Exit.isFailure(exit)) {
+    console.error(`Unexpected failure: ${JSON.stringify(exit.cause)}`)
+  }
+})
+```
+
+---
+layout: full
+---
+
+# Dependency Injection
+##
+Layers represents modules of your application and they compose very well, you could imagine having a service `TodoRepo` which constructors depends on `Http` and we have a program that uses both `TodoRepo | Http`
+
+```ts twoslash
+// @module: esnext
+// @filename: common.ts
+/// <reference path="node_modules/@types/node/index.d.ts" />
+/// <reference path="node_modules/@effect/core/index.d.ts" />
+export * from "./examples/effect/03-lib";
+// @filename: todos-impl.ts
+export * from "./examples/effect/09-todos-orDie";
+// @filename: todos.ts
+import { Effect, Chunk, Exit, Http as HttpImpl, pipe } from "./common";
+import { Tag } from "@tsplus/stdlib/service/Tag";
+
+export interface Todo { id: number }
+
+export interface TodoRepo {
+  readonly getTodo: (id: number) => Effect.Effect<never, never, Todo>
+  readonly getTodos: (ids: number[]) => Effect.Effect<never, never, Chunk.Chunk<Todo>>
+}
+
+export const TodoRepo = Tag<TodoRepo>()
+
+export interface Http {
+  readonly request: typeof HttpImpl.request
+}
+
+export const Http = Tag<Http>()
+
+
+import * as Layer from "@effect/core/io/Layer"
+
+// ---cut---
+export declare const LiveHttp: Layer.Layer<never, never, Http>
+export declare const LiveTodoRepo: Layer.Layer<Http, never, TodoRepo>
+
+export const AppContext = pipe(
+  LiveHttp,
+  Layer.provideToAndMerge(LiveTodoRepo)
+)
+
+export declare const program: Effect.Effect<Http | TodoRepo, never, void>
+
+export const main = pipe(
+  program,
+  Effect.provideSomeLayer(AppContext)
+)
+
+Effect.unsafeRunAsyncWith(main, (exit) => {
+  if (Exit.isFailure(exit)) {
+    console.error(`Unexpected failure: ${JSON.stringify(exit.cause)}`)
+  }
+})
+```
+
+
+---
+layout: center
+---
+
+# Recap!
+##
+we've been only scratching the surface of Effect and a lot of its power hasn't made it to this presentation but we've seen how to deal with:
+
+<v-clicks>
+
+- Errors
+- Retries
+- Concurrency
+- Interruption
+- Logging
+- Tracing
+- Metrics
+- Dependencies
+
+</v-clicks>
+
+---
+layout: full
+---
+
+# What's in the Box?
+##
+When looking into Effect you'll find a rich set of modules to deal with much more than what we've seen, just in `@effect/core` you'll find:
+
+<v-clicks>
+
+- Effect: Generic Program Definition
+- Cause: Representing potentially multiple failure causes of different kinds
+- Scope: Safe Resource Management to model things like database connections
+- Fiber: Low Level Concurrency Primitives
+- Queue: Work-Stealing Concurrent & Backpressured Queues
+- Hub: Like a Pub/Sub for Effects
+- Layer: Context Construction
+- Metrics: Prometheus Compatible Metrics
+- Tracing: OpenTelemetry Compatible Tracing
+
+</v-clicks>
+
+---
+layout: full
+---
+
+# What's in the Box?
+##
+When looking into Effect you'll find a rich set of modules to deal with much more than what we've seen, just in `@effect/core` you'll find:
+
+<v-clicks>
+
+- Logger: Multi-Level & Abstract Logger
+- Ref: Mutable Reference to immutable State with potentially Syncronized access and updates
+- Schedule: Time-based Scheduling Policies
+- Stream: Pull Based Effectful Streams (like an Effect that can produce 0 - infinite values)
+- Deferred: Like a Promise of an Effect that may be fulfilled at a later point
+- STM: Transactional Data Structures & Coordination 
+- Semaphore: Concurrency Control
+- Clock: System Clock & Time Utilities
+- Random: Deterministic Seeded Random Utilities
+- Runtime: Runtime Configuration and Runner
+- Supervisor: Fiber Monitoring
+
+</v-clicks>
+
+---
+layout: center
+---
+
+# Early adopters feedback
+
+<br />
+
+<img src="https://i.imgur.com/ZUKacox.png" style="width: 500px" />
 
 ---
 layout: center
